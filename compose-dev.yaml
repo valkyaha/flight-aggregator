@@ -1,0 +1,16 @@
+# Dev-only dependencies started automatically by spring-boot-docker-compose
+# when running the app via ./gradlew bootRun (see spring.docker.compose.file).
+# The full stack (incl. backend) lives in compose.yaml for `docker compose up --build`.
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: flights
+      POSTGRES_USER: flights
+      POSTGRES_PASSWORD: flights
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"

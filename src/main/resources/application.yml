@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: flight-aggregator
+  threads:
+    virtual:
+      enabled: true              # virtual threads (Java 25) for blocking provider fan-out
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/flights}
+    username: ${POSTGRES_USER:flights}
+    password: ${POSTGRES_PASSWORD:flights}
+  jpa:
+    hibernate:
+      ddl-auto: validate         # schema owned by migrations, not Hibernate auto-DDL
+    open-in-view: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  docker:
+    compose:
+      enabled: true
+      file: compose-dev.yaml     # local bootRun starts only Postgres + Redis, not the app itself
+
+ota:
+  markup-percentage: ${OTA_MARKUP:5}   # default 5% OTA operational markup
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+
+server:
+  port: 8080
