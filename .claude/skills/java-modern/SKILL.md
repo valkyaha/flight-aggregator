@@ -19,8 +19,8 @@ Toolchain for this project: **Java 25 LTS**, **Spring Boot 4.1.x** (Spring Frame
 ## Concurrency — the resiliency backbone of this assessment
 
 - **Virtual threads** (JEP 491 pinning fix is final in 25 — `synchronized` no longer pins). Enable in Spring Boot with `spring.threads.virtual.enabled=true`. Ideal for the fan-out to 3 blocking provider APIs.
-- **Structured concurrency** (`StructuredTaskScope`, final in 25) for the parallel provider fan-out: launch all three provider calls, join, and treat one provider's failure/timeout as a *partial* result rather than failing the whole aggregation. Use a scope policy that collects successful subtasks and lets slow/failed ones be abandoned by a deadline.
-- **Scoped Values** replace `ThreadLocal` for request-scoped context in virtual-thread-heavy code.
+- **Structured concurrency** (`StructuredTaskScope`) for the parallel provider fan-out: launch all three provider calls, join, and treat one provider's failure/timeout as a *partial* result rather than failing the whole aggregation. Use `Joiner.awaitAll()` with `Configuration.withTimeout(deadline)` so slow/failed subtasks are abandoned by a deadline. **Still a preview API in JDK 25 (JEP 505)** — requires `--enable-preview` consistently across `compileJava`, `test`, `bootRun`, and the Docker runtime (`java --enable-preview -jar`). Note the deadline gotcha: after a `TimeoutException` you may read `Subtask.state()` but **not** `Subtask.get()` ("join not called"); to keep partial results, have each subtask publish into a concurrent collection as it completes rather than reading `get()` afterward.
+- **Scoped Values** (final in 25) replace `ThreadLocal` for request-scoped context in virtual-thread-heavy code.
 - Never hand-manage thread pools for I/O fan-out; let virtual threads + structured concurrency handle it.
 
 ## Spring Boot 4.x notes

@@ -23,6 +23,34 @@ spring:
 
 ota:
   markup-percentage: ${OTA_MARKUP:5}   # default 5% OTA operational markup
+  connection:
+    min-minutes: ${OTA_MIN_CONNECTION_MINUTES:30}
+    max-minutes: ${OTA_MAX_CONNECTION_MINUTES:1440}
+
+cache:
+  search:
+    ttl: ${SEARCH_CACHE_TTL:30s}
+    max-size: ${SEARCH_CACHE_MAX_SIZE:10000}
+
+ingestion:
+  startup:
+    enabled: ${INGESTION_STARTUP_ENABLED:false}
+    initial-delay: ${INGESTION_INITIAL_DELAY:5s}
+  refresh-interval: ${INGESTION_REFRESH_INTERVAL:5m}
+
+providers:
+  deadline: ${PROVIDER_FANOUT_DEADLINE:6s}
+  connect-timeout: ${PROVIDER_CONNECT_TIMEOUT:2s}
+  read-timeout: ${PROVIDER_READ_TIMEOUT:5s}
+  alpha:
+    base-url: ${ALPHA_BASE_URL:http://mock-providers:8080}
+    path: /alpha/flights
+  beta:
+    base-url: ${BETA_BASE_URL:http://mock-providers:8080}
+    path: /beta/flights
+  gamma:
+    base-url: ${GAMMA_BASE_URL:http://mock-providers:8080}
+    path: /gamma/flights
 
 management:
   endpoints:

@@ -21,6 +21,22 @@ services:
       timeout: 3s
       retries: 10
 
+  mock-providers:
+    build:
+      context: .
+      dockerfile: mock-providers/Dockerfile
+    environment:
+      MOCK_ERROR_RATE: ${MOCK_ERROR_RATE:-0.1}
+      MOCK_LATENCY_MIN_MS: ${MOCK_LATENCY_MIN_MS:-100}
+      MOCK_LATENCY_MAX_MS: ${MOCK_LATENCY_MAX_MS:-2000}
+      MOCK_ITINERARIES: ${MOCK_ITINERARIES:-50}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health | grep -q OK || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
   backend:
     build: .
     depends_on:
@@ -28,20 +44,35 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      mock-providers:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/flights
       POSTGRES_USER: ${POSTGRES_USER:-flights}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-flights}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      ALPHA_BASE_URL: http://mock-providers:8080
+      BETA_BASE_URL: http://mock-providers:8080
+      GAMMA_BASE_URL: http://mock-providers:8080
+      INGESTION_STARTUP_ENABLED: "true"
     ports:
       - "8080:8080"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness | grep -q UP || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health/readiness | grep -q UP || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
       start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:80"
 
 volumes:
   pgdata:

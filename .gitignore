@@ -38,3 +38,6 @@ out/
 
 ### Project
 .env
+
+# Internal prompt log — not shipped
+docs/PROMPTS.md

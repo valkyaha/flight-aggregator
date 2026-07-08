@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: mock-providers
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: 8080
+
+mock:
+  error-rate: ${MOCK_ERROR_RATE:0.1}
+  itineraries-per-query: ${MOCK_ITINERARIES:30}
+  latency:
+    min-ms: ${MOCK_LATENCY_MIN_MS:100}
+    max-ms: ${MOCK_LATENCY_MAX_MS:2000}
